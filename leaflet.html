@@ -1,0 +1,54 @@
+<html>
+<head>
+	 <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
+	 <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>	
+	 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>	 
+	 
+	 <style>
+	 #mapid { 
+	 	height: 500px; 
+	 	width: 800px;
+	 }
+	 </style>
+</head>
+<body>
+	 <!-- Page Content -->
+	 <h2>Boston Public Schools</h2>
+	 <div id="mapid"></div>	 
+ 	 <p>Source: <a href="http://bostonopendata.boston.opendata.arcgis.com/datasets/1d9509a8b2fd485d9ad471ba2fdb1f90_0">Boston Open Data</a></p>
+	 
+	 <!-- Connect to Leaflet Mapping Library -->
+	 <script>
+	 var mymap = L.map('mapid').setView([42.31, -71.1], 12);
+	 
+	 var osmAttr = '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a 					href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
+	 
+	 L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+	             {attribution: osmAttr
+	         }).addTo(mymap);
+	 </script>
+
+
+	 <!-- Get data from Boston Open Data, Plot on Leaflet -->
+	<script>
+	$.getJSON("http://bostonopendata.boston.opendata.arcgis.com/datasets/1d9509a8b2fd485d9ad471ba2fdb1f90_0.geojson", function(result){
+
+			var schools = result.features
+			for(var x in schools) {
+				var school_name = schools[x].properties.SCH_NAME;
+				/* For some reason, the coordinate pair is backwards in this dataset, causing us to plot
+					schools in Antarctica. Reverse [0] and [1]*/
+				var coords = [schools[x].geometry.coordinates[1], schools[x].geometry.coordinates[0]];
+				var marker = L.marker(coords).addTo(mymap);
+		   	 	marker.bindPopup(school_name);
+				/* Pick the 40th school to popup on default, so the user sees they can click points*/
+				if(x == 40) {
+					marker.openPopup();
+				};
+			};
+
+	        });
+	</script>
+
+</body>
+</html>
